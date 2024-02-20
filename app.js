@@ -8,56 +8,102 @@
 
 //const synth = new Tone.Synth().toDestination();
 
+let volume = -6;
+let attack = 100;
+let decay = 20;
+let sustain = 0.5;
+let release = 200;
+
+let analyserBinSize = 2048;
+
+
 const analyserSettings = {
-    size: 2048,
-    maxDecibels: -30,
-    minDecibels: -100,
-    smoothing: 0.5,
+    size: analyserBinSize,
+    maxDecibels: -10,
+    minDecibels: -50,
+    smoothing: 0.1,
 };
 
 
-const analyser = new Tone.Analyser("waveform", analyserSettings);
-let waveformBuffer = new Float32Array(2048);
+const waveformAnalyser = new Tone.Analyser("waveform", analyserSettings);
+let waveformBuffer = new Float32Array(analyserBinSize);
 
-function getAudioData() {
-    waveformBuffer = analyser.getValue();
-}
+const freqAnalyser = new Tone.Analyser("fft", analyserSettings);
+let freqBuffer = new Float32Array(analyserBinSize);    
 
-function draw() {
 
-    requestAnimationFrame(draw);
+function drawWaveform() {
 
-    getAudioData();
+    requestAnimationFrame(drawWaveform);
 
-    // get the canvas
-    const canvas = document.getElementById("waveform-canvas");
-    const ctx = canvas.getContext("2d");
+    // load buffer from analyser
+    waveformBuffer = waveformAnalyser.getValue();
+    
+    // get the waveform canvas
+    const waveformCanvas = document.getElementById("waveform-canvas");
+    const waveformCtx = waveformCanvas.getContext("2d");
 
-    // clear the canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // clear the waveform canvas
+    waveformCtx.clearRect(0, 0, waveformCanvas.width, waveformCanvas.height);
 
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "rgb(227, 255, 127";
-    ctx.beginPath();
+    waveformCtx.lineWidth = 2;
+    waveformCtx.strokeStyle = "rgb(227, 255, 127";
+    waveformCtx.beginPath();
 
-    let x = 0;
-    let sliceWidth = canvas.width * 1.0 / waveformBuffer.length;
+    let wx = 0;
+    let wsliceWidth = waveformCanvas.width * 1.0 / waveformBuffer.length;
 
     // draw the waveform
     for (let i = 0; i < waveformBuffer.length; i++) {
-        const y = (0.5 + waveformBuffer[i] / 2) * canvas.height;
+        const wy = (0.5 + waveformBuffer[i] / 2) * waveformCanvas.height;
         if (i === 0) {
-            ctx.moveTo(x, y);
+            waveformCtx.moveTo(wx, wy);
         } else {
-            ctx.lineTo(x, y);
+            waveformCtx.lineTo(wx, wy);
         }
-        x += sliceWidth;
+        wx += wsliceWidth;
     }
-    ctx.lineTo(canvas.width, canvas.height / 2);
-    ctx.stroke();
-}
-draw();
+    waveformCtx.lineTo(waveformCanvas.width, waveformCanvas.height / 2);
+    waveformCtx.stroke();
 
+}
+
+function drawFreq(){
+
+    requestAnimationFrame(drawFreq);
+
+    freqBuffer = freqAnalyser.getValue();
+
+    // get the frequency canvas
+    const freqCanvas = document.getElementById("freq-canvas");
+    const freqCtx = freqCanvas.getContext("2d");
+
+    // clear the frequency canvas
+    freqCtx.clearRect(0, 0, freqCanvas.width, freqCanvas.height);
+
+    freqCtx.lineWidth = 2;
+    //freqCtx.strokeStyle = "rgb(227, 255, 127";
+    freqCtx.beginPath();
+
+
+    // draw the frequencies
+    var barWidth = (freqBuffer.length/ freqCanvas.width );
+    var barHeight;
+    var fx = 0;
+    var fy = 0;
+
+    for (var i = 0; i < freqBuffer.length; i++) {
+        barHeight = freqBuffer[i];
+        freqCtx.fillStyle = 'rgb(227, 255, 127)';
+        fy = freqCanvas.height - barHeight/2;
+        freqCtx.fillRect(fx, fy, barWidth, barHeight);
+        fx += barWidth + 1;
+    }    
+
+}
+
+drawWaveform();
+drawFreq();
 //window.requestAnimationFrame(draw);
 
 const synth = new Tone.PolySynth();
@@ -74,8 +120,10 @@ keyboard.down((key) =>
     console.log(key)
 });
 
-// create an autopanner and start it
-//const autoPanner = new Tone.AutoPanner("2n");
+function setVolume(newVolume){
+    synth.volume.value = newVolume;
+    console.log("Volume: " + newVolume);
+}
 
 // create feedback delay options object
 const delaySettings = {
@@ -91,17 +139,14 @@ const delaySettings = {
 const feedbackDelay = new Tone.FeedbackDelay(delaySettings);
 //const feedbackDelay = new Tone.FeedbackDelay("8n.", 0.50);
 
-// connect the synth to the panner 
-//synth.connect(feedbackDelay);
-//synth.connect(autoPanner);
-//autoPanner.connect(feedbackDelay);
-//autoPanner.toDestination();
-//feedbackDelay.toDestination();
-//analyser.connect(synth);
-synth.connect(analyser);
-analyser.toDestination();
+function setAttack(attackTime) {
+  synth.set({attack: attackTime});
+}
 
-//autoPanner.start();
+
+synth.fan(waveformAnalyser, freqAnalyser);
+synth.toDestination();
+
 
 
 

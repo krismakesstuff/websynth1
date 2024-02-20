@@ -48,7 +48,7 @@
 
 .grid-row3 {
     display: grid;
-    grid-template-rows: 1fr;
+    grid-template-columns: 1fr 1fr;
     background-color: rgb(227, 255, 127);
     padding: 10px;
 }
@@ -76,4 +76,11 @@ input[type="range"][orient="vertical"] {
     width: 50%;
     background-color: rgb(34, 48, 47);
     border : 1px solid black;
+}
+
+#freq-canvas{
+  height: 100%;
+  width: 50%;
+  background-color: rgb(34, 48, 47);
+  border : 1px solid black;
 }

@@ -22,31 +22,32 @@
 					<h1 id="synth-title">Synth</h1>
 				</div>
 				<div class="volume-wrapper">
-					<input type="range" id="volume-slider" min="-60" max="0" value="-6" step="1" />
+					<input type="range" id="volume-slider" min="-60" max="0" value="-6" step="1" oninput="setVolume(this.value)"/>
 					<h4 class="volume-label">Volume</h4>
 				</div>
 
 			</div>
 			<div class="grid-row2">
 				<div class="grid-item-adsr">
-					<input type="range" id="attack" min="10" max="1000" value="100" step="0.5" orient="vertical"/>
+					<input type="range" id="attack-slider" min="10" max="1000" value="100" step="0.5" orient="vertical"  />
 					<p>attack</p>
 				</div>
 				<div class="grid-item-adsr">
-					<input type="range" id="decay" min="0" max="1000" value="100" step="0.5" orient="vertical"/>
+					<input type="range" id="decay-slider" min="0" max="1000" value="100" step="0.5" orient="vertical"/>
 					<p>decay</p>
 				</div>
 				<div class="grid-item-adsr">
-					<input type="range" id="sustain" min="0" max="1" value="0.5" step="0.01" orient="vertical"/>
+					<input type="range" id="sustain-slider" min="0" max="1" value="0.5" step="0.01" orient="vertical"/>
 					<p>sustain</p>
 				</div>
 				<div class="grid-item-adsr">
-					<input type="range" id="release" min="0" max="2000" value="150" step="0.01" orient="vertical"/>
+					<input type="range" id="release-slider" min="0" max="2000" value="150" step="0.01" orient="vertical"/>
 					<p>release</p>
 				</div>
 			</div>
 			<div class="grid-row3">
 				<canvas id="waveform-canvas"></canvas>
+				<canvas id="freq-canvas"></canvas>
 			</div>
 		</div>
 
