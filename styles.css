@@ -73,14 +73,14 @@ input[type="range"][orient="vertical"] {
 
 #waveform-canvas{
     height: 100%;
-    width: 50%;
+    width: 75%;
     background-color: rgb(34, 48, 47);
-    border : 1px solid black;
+    border : 5px solid orange;
 }
 
 #freq-canvas{
   height: 100%;
-  width: 50%;
+  width: 75%;
   background-color: rgb(34, 48, 47);
-  border : 1px solid black;
+  border : 5px solid orange;
 }

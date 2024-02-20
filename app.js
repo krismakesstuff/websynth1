@@ -1,12 +1,4 @@
 
-// function playNote() {
-// // create a synth
-// const synth = new Tone.Synth().toDestination();
-// // play a note from that synth
-// synth.triggerAttackRelease("F#2", "8n");
-// }
-
-//const synth = new Tone.Synth().toDestination();
 
 let volume = -6;
 let attack = 100;
@@ -14,7 +6,35 @@ let decay = 20;
 let sustain = 0.5;
 let release = 200;
 
-let analyserBinSize = 2048;
+const synth = new Tone.PolySynth();
+
+const keyboard = new AudioKeys({
+    polyphony: 4,
+    rows: 2,
+    priority: "last"
+});
+
+// audio keys event listener
+keyboard.down((key) => 
+{
+    synth.triggerAttackRelease(key.frequency, "8n");
+    console.log(key)
+});
+
+// create feedback delay options object
+const delaySettings = {
+    delayTime: "4n",
+    feedback: 0.80,
+    wet: 0.25,
+
+    //maxDelay: 0.15
+};
+
+
+// make a feedback delay with the settings in delaySettings
+const feedbackDelay = new Tone.FeedbackDelay(delaySettings);
+//const feedbackDelay = new Tone.FeedbackDelay("8n.", 0.50);
+let analyserBinSize = 1024;
 
 
 const analyserSettings = {
@@ -28,7 +48,7 @@ const analyserSettings = {
 const waveformAnalyser = new Tone.Analyser("waveform", analyserSettings);
 let waveformBuffer = new Float32Array(analyserBinSize);
 
-const freqAnalyser = new Tone.Analyser("fft", analyserSettings);
+const freqAnalyser = new Tone.Analyser("fft", analyserBinSize);
 let freqBuffer = new Float32Array(analyserBinSize);    
 
 
@@ -82,23 +102,27 @@ function drawFreq(){
     freqCtx.clearRect(0, 0, freqCanvas.width, freqCanvas.height);
 
     freqCtx.lineWidth = 2;
-    //freqCtx.strokeStyle = "rgb(227, 255, 127";
+    //freqCtx.strokeStyle = "rgb(227, 255, 127)";
     freqCtx.beginPath();
 
 
     // draw the frequencies
-    var barWidth = (freqBuffer.length/ freqCanvas.width );
+    var barWidth = ( freqCanvas.width / freqBuffer.length  );
     var barHeight;
     var fx = 0;
     var fy = 0;
 
+    
+
     for (var i = 0; i < freqBuffer.length; i++) {
-        barHeight = freqBuffer[i];
+        
+        barHeight = freqBuffer[i] * 1.0;
         freqCtx.fillStyle = 'rgb(227, 255, 127)';
-        fy = freqCanvas.height - barHeight/2;
+        fy = freqCanvas.height - (barHeight/2);
         freqCtx.fillRect(fx, fy, barWidth, barHeight);
         fx += barWidth + 1;
     }    
+
 
 }
 
@@ -106,38 +130,12 @@ drawWaveform();
 drawFreq();
 //window.requestAnimationFrame(draw);
 
-const synth = new Tone.PolySynth();
-
-const keyboard = new AudioKeys({
-    polyphony: 4,
-    rows: 2,
-    priority: "last"
-});
-
-keyboard.down((key) => 
-{
-    synth.triggerAttackRelease(key.frequency, "8n");
-    console.log(key)
-});
 
 function setVolume(newVolume){
     synth.volume.value = newVolume;
     console.log("Volume: " + newVolume);
 }
 
-// create feedback delay options object
-const delaySettings = {
-  delayTime: "4n",
-  feedback: 0.80,
-  wet: 0.25,
-
-  //maxDelay: 0.15
-};
-
-
-// make a feedback delay with the settings in delaySettings
-const feedbackDelay = new Tone.FeedbackDelay(delaySettings);
-//const feedbackDelay = new Tone.FeedbackDelay("8n.", 0.50);
 
 function setAttack(attackTime) {
   synth.set({attack: attackTime});
