@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html>
+	<head>	
+		<meta charset="utf-8" />
+		<title>krissynth1</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!-- LOAD AudioKeys Libary -->
+		<script src="/js/audiokeys.js"></script>
+		<!-- LOAD Tone.js from unpkg -->
+		<script src="https://unpkg.com/tone"></script>
+		
+		<!-- attach stlyes.css -->
+		<link rel="stylesheet" type="text/css" href="styles.css">
+
+	</head>
+	<body>
+
+		<!-- make a grid with 2 rows. The 1st row is for the volume slider only. The 2nd row is for Attack, Decay, Sustain, Release-->
+		<div class="wrapper">
+			<div class="grid-row1">
+				<div class="title-wrapper">
+					<h1 id="synth-title">Synth</h1>
+				</div>
+				<div class="volume-wrapper">
+					<input type="range" id="volume-slider" min="-60" max="0" value="-6" step="1" />
+					<h4 class="volume-label">Volume</h4>
+				</div>
+
+			</div>
+			<div class="grid-row2">
+				<div class="grid-item-adsr">
+					<input type="range" id="attack" min="10" max="1000" value="100" step="0.5" orient="vertical"/>
+					<p>attack</p>
+				</div>
+				<div class="grid-item-adsr">
+					<input type="range" id="decay" min="0" max="1000" value="100" step="0.5" orient="vertical"/>
+					<p>decay</p>
+				</div>
+				<div class="grid-item-adsr">
+					<input type="range" id="sustain" min="0" max="1" value="0.5" step="0.01" orient="vertical"/>
+					<p>sustain</p>
+				</div>
+				<div class="grid-item-adsr">
+					<input type="range" id="release" min="0" max="2000" value="150" step="0.01" orient="vertical"/>
+					<p>release</p>
+				</div>
+			</div>
+			<div class="grid-row3">
+				<canvas id="waveform-canvas"></canvas>
+			</div>
+		</div>
+
+		<!-- LOAD app.js -->
+		<script src="app.js"></script>
+	</body>
+</html>
+
+		
