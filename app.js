@@ -6,52 +6,61 @@ let decay = 20;
 let sustain = 0.5;
 let release = 200;
 
+
 const synth = new Tone.PolySynth();
 
-const keyboard = new AudioKeys({
-    polyphony: 4,
-    rows: 2,
-    priority: "last"
+const ampEnv = new Tone.AmplitudeEnvelope({
+    attack: 0.1,    
+    decay: 0.2,
+    sustain: 0.5,
+    release: 0.8
 });
 
-// audio keys event listener
-keyboard.down((key) => 
-{
-    synth.triggerAttackRelease(key.frequency, "8n");
-    console.log(key)
-});
 
-// create feedback delay options object
-const delaySettings = {
-    delayTime: "4n",
-    feedback: 0.80,
-    wet: 0.25,
-
-    //maxDelay: 0.15
-};
-
-
-// make a feedback delay with the settings in delaySettings
-const feedbackDelay = new Tone.FeedbackDelay(delaySettings);
-//const feedbackDelay = new Tone.FeedbackDelay("8n.", 0.50);
-let analyserBinSize = 1024;
-
-
+// make analyser nodes
+let analyserBinSize = 256;
 const analyserSettings = {
     size: analyserBinSize,
     maxDecibels: -10,
-    minDecibels: -50,
-    smoothing: 0.1,
+    minDecibels: -100,
+    smoothing: 0.5,
 };
-
 
 const waveformAnalyser = new Tone.Analyser("waveform", analyserSettings);
 let waveformBuffer = new Float32Array(analyserBinSize);
 
-const freqAnalyser = new Tone.Analyser("fft", analyserBinSize);
+const freqAnalyser = new Tone.Analyser("fft", analyserSettings);
 let freqBuffer = new Float32Array(analyserBinSize);    
 
+// connect sounds to output nodes
+synth.fan(waveformAnalyser, freqAnalyser);
+synth.toDestination();
 
+// synth.connect(ampEnv);
+// ampEnv.toDestination();
+
+// osc.fan(waveformAnalyser, freqAnalyser);
+// osc.toDestination();
+//osc.start();
+
+
+
+// start an oscillator at 220hz
+//const osc = new Tone.Oscillator(120, "sine").toDestination();
+
+// create feedback delay options object
+// const delaySettings = {
+//     delayTime: "4n",
+//     feedback: 0.80,
+//     wet: 0.25,
+
+//     //maxDelay: 0.15
+// };
+// // make a feedback delay with the settings in delaySettings
+// const feedbackDelay = new Tone.FeedbackDelay(delaySettings);
+//const feedbackDelay = new Tone.FeedbackDelay("8n.", 0.50);
+
+// function that gets called every frame to draw the waveform
 function drawWaveform() {
 
     requestAnimationFrame(drawWaveform);
@@ -66,7 +75,8 @@ function drawWaveform() {
     // clear the waveform canvas
     waveformCtx.clearRect(0, 0, waveformCanvas.width, waveformCanvas.height);
 
-    waveformCtx.lineWidth = 2;
+    // set the line color and width
+    waveformCtx.lineWidth = 1;
     waveformCtx.strokeStyle = "rgb(227, 255, 127";
     waveformCtx.beginPath();
 
@@ -88,10 +98,12 @@ function drawWaveform() {
 
 }
 
+// function that gets called every frame to draw the FFT
 function drawFreq(){
 
     requestAnimationFrame(drawFreq);
 
+    // load buffer from analyser
     freqBuffer = freqAnalyser.getValue();
 
     // get the frequency canvas
@@ -101,86 +113,91 @@ function drawFreq(){
     // clear the frequency canvas
     freqCtx.clearRect(0, 0, freqCanvas.width, freqCanvas.height);
 
-    freqCtx.lineWidth = 2;
-    //freqCtx.strokeStyle = "rgb(227, 255, 127)";
+    // set the line color and width
     freqCtx.beginPath();
+    freqCtx.strokeStyle = "rgb(227, 255, 127)";
+    freqCtx.lineWidth = 1;
 
-
-    // draw the frequencies
-    var barWidth = ( freqCanvas.width / freqBuffer.length  );
-    var barHeight;
-    var fx = 0;
-    var fy = 0;
-
+    // map the amplitude to the y axis
+    let dbToY = d3.scaleLinear().domain([-100, 0]). range([freqCanvas.height, 0]);
     
+    // map the frequency to the x axis, logaritmicaly
+    let freqToX = d3.scaleLog().domain([20, 20000]).range([0, freqCanvas.width]);
 
-    for (var i = 0; i < freqBuffer.length; i++) {
+    // initialize the x and y coordinates
+    let fx = 0;
+    let fy = 0;
+    
+    // make path from the frequency buffer
+    for(let i = 0; i < freqBuffer.length; i++){
         
-        barHeight = freqBuffer[i] * 1.0;
-        freqCtx.fillStyle = 'rgb(227, 255, 127)';
-        fy = freqCanvas.height - (barHeight/2);
-        freqCtx.fillRect(fx, fy, barWidth, barHeight);
-        fx += barWidth + 1;
-    }    
+        fy = dbToY(freqBuffer[i]);
 
+        if(i === 0){
+            freqCtx.moveTo(fx, fy);
+        }
+        else{
+            freqCtx.lineTo(fx, fy);
+        }
+
+        fx = freqToX(i);
+    }
+
+    // draw the path
+    freqCtx.stroke();
 
 }
 
+// call to trigger animation requests
 drawWaveform();
 drawFreq();
-//window.requestAnimationFrame(draw);
 
+// event listeners
+const keyboard = new AudioKeys({
+    polyphony: 4,
+    rows: 2,
+    priority: "last"
+});
 
+// audio keys event listener
+keyboard.down((key) => 
+{
+    //synth.set({})
+    //ampEnv.triggerAttack();
+    synth.triggerAttackRelease(key.frequency, "8n");
+    console.log(key)
+});
+
+// event callbacks
 function setVolume(newVolume){
     synth.volume.value = newVolume;
+    osc.volume.value = newVolume;
     console.log("Volume: " + newVolume);
+    
 }
-
 
 function setAttack(attackTime) {
-  synth.set({attack: attackTime});
+    ampEnv.set({attack: attackTime});
+    // log the new attack time
+    console.log("Attack: " + attackTime);
 }
 
+function setDecay(decayTime) {
+    ampEnv.set({decay: decayTime});
+    // log the new decay time
+    console.log("Decay: " + decayTime);
+}
 
-synth.fan(waveformAnalyser, freqAnalyser);
-synth.toDestination();
+function setSustain(sustainLevel) {
+    ampEnv.set({sustain: sustainLevel});
+    // log the new sustain level
+    console.log("Sustain: " + sustainLevel);
+}
 
+function setRelease(releaseTime) {
+    ampEnv.set({release: releaseTime});
+    // log the new release time
+    console.log("Release: " + releaseTime);
+}
 
-
-
-
-
-
-
-
-// Trigger note when space bar is pressed
-// document.addEventListener('keydown', function(e) {
-//   if (e.code === 'Space') {
-//     synth.triggerAttackRelease('F#2', '8n');
-//   }
-// });
-
-// Trigger note when number 1 key is pressed
-// document.addEventListener('keydown', function(e) {
-//   if (e.code === 'Digit1') {
-//     synth.triggerAttackRelease('F#2', '4n');
-//     // log keypress
-//     console.log("Key pressed: " + e.code);
-//   }
-//   if (e.code === 'Digit2') {
-//     synth.triggerAttackRelease('A#2', '4n');
-//     console.log("Key pressed: " + e.code);
-//   }
-// });
-
-// function playNote2(){
-//     // play a note a major third about the space bar note
-//     synth.triggerAttackRelease("A#2", "4n");
-
-// }
-
-
-
-// log tone context state
-//console.log(" end of file state: " + Tone.context.state); 
 
