@@ -7,7 +7,23 @@ let sustain = 0.5;
 let release = 200;
 
 
-const synth = new Tone.PolySynth();
+//const synth = new Tone.PolySynth();
+
+const synths = [
+    new Tone.Synth({oscillator: {type: "fatsine"}}),
+    new Tone.Synth({oscillator: {type: "fmsine"}}),
+    new Tone.Synth({oscillator: {type: "amsine"}}),
+    new Tone.Synth({oscillator: {type: "fattriangle"}}),
+];
+
+const gainNodes = [
+    new Tone.Gain(0.5),
+    new Tone.Gain(0.5),
+    new Tone.Gain(0.5),
+    new Tone.Gain(0.5),
+];
+
+
 
 const ampEnv = new Tone.AmplitudeEnvelope({
     attack: 0.1,    
@@ -32,9 +48,68 @@ let waveformBuffer = new Float32Array(analyserBinSize);
 const freqAnalyser = new Tone.Analyser("fft", analyserSettings);
 let freqBuffer = new Float32Array(analyserBinSize);    
 
-// connect sounds to output nodes
-synth.fan(waveformAnalyser, freqAnalyser);
-synth.toDestination();
+const seqRows = [
+    document.getElementById("seq-inst1"),
+    document.getElementById("seq-inst2"),
+    document.getElementById("seq-inst3"),
+    document.getElementById("seq-inst4"),
+];
+
+
+const notes = [
+    ["C3", "D3", "E3", "F3", "G3", "A3", "A#3", "B3"],
+    ["C4", "D4", "E4", "F4", "G4", "A4", "A#4", "B4"],
+    ["C5", "D5", "E5", "F5", "G5", "A5", "A#5", "B5"],
+    ["C6", "D6", "E6", "F6", "G6", "A6", "A#6", "B6"],
+];
+
+
+Tone.Transport.bpm.value = 100;
+Tone.Transport.scheduleRepeat(onBeat, '8n');
+Tone.Transport.start();
+console.log("Transport State: " + Tone.Transport.state);  
+
+let index = 0;
+
+function onBeat(time){
+    for(let i = 0; i < seqRows.length; i++){
+        let row = seqRows[i].children;
+        let synth = synths[i];
+        for(let j = 0; j < row.length; j++){
+            let step = row[index % 8];
+            if(step.tagName === "INPUT" && step.checked){
+                synth.triggerAttackRelease(notes[i][j], "8n", time);
+            }
+        }
+    }
+    index++;
+}
+
+// spacebar event listener that toggles transport start/stop
+document.addEventListener("keydown", (event) => {
+    if(event.code === "Space"){
+        if(Tone.Transport.state === "started"){
+            Tone.Transport.stop();
+        }
+        else{
+            Tone.Transport.start();
+        }
+        console.log(Tone.Transport.state);
+    }
+});
+
+
+// connect synths to gainNodes
+for(let i = 0; i < synths.length; i++){
+ //   synths[i].connect(ampEnv);
+    synths[i].connect(gainNodes[i]);
+    synths[i].fan(waveformAnalyser, freqAnalyser);
+}
+
+// connect gainNodes to destination
+for(let i = 0; i < gainNodes.length; i++){
+    gainNodes[i].toDestination();
+}
 
 // synth.connect(ampEnv);
 // ampEnv.toDestination();
@@ -152,52 +227,48 @@ function drawFreq(){
 drawWaveform();
 drawFreq();
 
-// event listeners
-const keyboard = new AudioKeys({
-    polyphony: 4,
-    rows: 2,
-    priority: "last"
-});
 
 // audio keys event listener
-keyboard.down((key) => 
-{
-    //synth.set({})
-    //ampEnv.triggerAttack();
-    synth.triggerAttackRelease(key.frequency, "8n");
-    console.log(key)
-});
+// const keyboard = new AudioKeys({
+//     polyphony: 4,
+//     rows: 2,
+//     priority: "last"
+// });
+
+// keyboard.down((key) => 
+// {
+//     //synth.set({})
+//     //ampEnv.triggerAttack();
+//     synth.triggerAttackRelease(key.frequency, "8n");
+//     console.log(key)
+// });
 
 // event callbacks
 function setVolume(newVolume){
-    synth.volume.value = newVolume;
-    osc.volume.value = newVolume;
-    console.log("Volume: " + newVolume);
-    
+    //synth.volume.value = newVolume;
+    //osc.volume.value = newVolume;
+    //console.log("Volume: " + newVolume);
+    //gain.gain.value = newVolume;
 }
 
-function setAttack(attackTime) {
-    ampEnv.set({attack: attackTime});
-    // log the new attack time
-    console.log("Attack: " + attackTime);
+function setOsc1Gain(newGain){
+    gainNodes[0].gain.value = newGain;
+    console.log("Osc1 Gain: " + newGain);
 }
 
-function setDecay(decayTime) {
-    ampEnv.set({decay: decayTime});
-    // log the new decay time
-    console.log("Decay: " + decayTime);
+function setOsc2Gain(newGain){
+    gainNodes[1].gain.value = newGain;
+    console.log("Osc2 Gain: " + newGain);
 }
 
-function setSustain(sustainLevel) {
-    ampEnv.set({sustain: sustainLevel});
-    // log the new sustain level
-    console.log("Sustain: " + sustainLevel);
+function setOsc3Gain(newGain){
+    gainNodes[2].gain.value = newGain;
+    console.log("Osc3 Gain: " + newGain);
 }
 
-function setRelease(releaseTime) {
-    ampEnv.set({release: releaseTime});
-    // log the new release time
-    console.log("Release: " + releaseTime);
+function setOsc4Gain(newGain){
+    gainNodes[3].gain.value = newGain;
+    console.log("Osc4 Gain: " + newGain);
 }
 
 

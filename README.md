@@ -6,5 +6,5 @@ WIP!
 TODO:  
     - hook up adsr and volume faders (considering getting rid of Audio keys and making this with a step sequencer with set note durations)  
     - style, make it look better  
-    - 
+    - split app.js into appropriate js files
    

@@ -48,8 +48,22 @@
 
 .grid-row3 {
     display: grid;
+    grid-template-columns: 1fr ;
+    background-color: rgb(227, 255, 127);
+    padding: 10px;
+}
+
+.grid-row4 {
+    display: grid;
     grid-template-columns: 1fr 1fr;
     background-color: rgb(227, 255, 127);
+    padding: 10px;
+}
+
+.sequencer-row{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    background-color: rgb(227, 50, 127);
     padding: 10px;
 }
 

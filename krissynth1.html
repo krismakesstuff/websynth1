@@ -16,9 +16,9 @@
 
 	</head>
 	<body>
-
-		<!-- make a grid with 2 rows. The 1st row is for the volume slider only. The 2nd row is for Attack, Decay, Sustain, Release-->
+		
 		<div class="wrapper">
+			<!-- make a grid with 4 rows. The 1st row is for the volume slider. The 2nd row is for Attack, Decay, Sustain, Release. 3rd row is for analysers. 4th row is step sequencer-->
 			<div class="grid-row1">
 				<div class="title-wrapper">
 					<h1 id="synth-title">Synth</h1>
@@ -31,26 +31,73 @@
 			</div>
 			<div class="grid-row2">
 				<div class="grid-item-adsr">
-					<input type="range" id="attack-slider" min="0" max="2" value="0.4" step="0.01" orient="vertical" oninput="setAttack(this.value)" />
-					<p>attack</p>
+					<input type="range" id="osc1-gain-slider" min="0" max="1" value="0.5" step="0.01" orient="vertical" oninput="setOsc1Gain(this.value)" />
+					<p>Osc 1</p>
 				</div>
 				<div class="grid-item-adsr">
-					<input type="range" id="decay-slider" min="0" max="2" value="0.3" step="0.01" orient="vertical" oninput="setDecay(this.value)"/>
-					<p>decay</p>
+					<input type="range" id="osc2-gain-slider" min="0" max="1" value="0.5" step="0.01" orient="vertical" oninput="setOsc2Gain(this.value)"/>
+					<p>Osc 2</p>
 				</div>
 				<div class="grid-item-adsr">
-					<input type="range" id="sustain-slider" min="0" max="1" value="0.5" step="0.01" orient="vertical" oninput="setSustain(this.value)"/>
-					<p>sustain</p>
+					<input type="range" id="osc3-gain-slider" min="0" max="1" value="0.5" step="0.01" orient="vertical" oninput="setOsc3Gain(this.value)"/>
+					<p>Osc 3</p>
 				</div>
 				<div class="grid-item-adsr">
-					<input type="range" id="release-slider" min="0" max="5" value="1" step="0.01" orient="vertical" oninput="setRelease(this.value)"/>
-					<p>release</p>
+					<input type="range" id="osc4-gain-slider" min="0" max="1" value="0.5" step="0.01" orient="vertical" oninput="setOsc4Gain(this.value)"/>
+					<p>Osc 4</p>
 				</div>
 			</div>
 			<div class="grid-row3">
+				<div class="sequencer-row" id="seq-inst1">
+					<p>inst1</p>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+				</div>
+				<div class="sequencer-row" id="seq-inst2">
+					<p>inst2</p>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+				</div>
+				<div class="sequencer-row" id="seq-inst3">
+					<p>inst3</p>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+				</div>
+				<div class="sequencer-row" id="seq-inst4">
+					<p>inst4</p>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+					<input type="checkbox"/>
+				</div>
+			</div>
+			<div class="grid-row4">
 				<canvas id="waveform-canvas"></canvas>
 				<canvas id="freq-canvas"></canvas>
 			</div>
+
 		</div>
 
 		<!-- LOAD app.js -->
