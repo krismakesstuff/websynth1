@@ -6,5 +6,6 @@ WIP!
 TODO:  
     - hook up adsr and volume faders (considering getting rid of Audio keys and making this with a step sequencer with set note durations)  
     - style, make it look better  
-    - 
+    - organize js files  
+  
    
